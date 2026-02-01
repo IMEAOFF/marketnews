@@ -94,10 +94,3 @@ MD
 git add README.md
 git commit -m “Update README”
 git push
-
-### 2) Commandes pour push le README
-```bash
-cd /Users/zhngi/Desktop/news-dashboard
-git add README.md
-git commit -m "Update README"
-git push
