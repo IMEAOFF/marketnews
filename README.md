@@ -44,3 +44,60 @@ source .venv/bin/activate
 
 pip install -r requirements.txt
 python app.py
+
+
+Open in your browser:
+	•	http://127.0.0.1:5000
+
+⸻
+
+API Keys
+
+You need at least one provider:
+	•	NewsAPI: https://newsapi.org/register
+	•	Finnhub: https://finnhub.io/register
+
+Keys are managed from the UI (“API Keys” section).
+They are stored locally in the database (news.db, table api_keys).
+
+Local Data & Privacy
+
+All data is stored locally:
+	•	news.db contains snapshots, articles, translations, and API keys.
+	•	The database file is ignored by git and should not be committed.
+
+⸻
+
+Notes
+	•	Some websites block full-article fetching (403/401/paywalls).
+In that case, use title + summary translation instead.
+	•	NewsAPI has rate limits depending on your plan. The app tracks requests approximately.
+
+Project Structure
+.
+├── app.py
+├── config.py
+├── requirements.txt
+├── static/
+│   └── app.css
+└── templates/
+    ├── layout.html
+    └── index.html
+
+License
+
+MIT
+MD
+
+2) Commit + push
+
+git add README.md
+git commit -m “Update README”
+git push
+
+### 2) Commandes pour push le README
+```bash
+cd /Users/zhngi/Desktop/news-dashboard
+git add README.md
+git commit -m "Update README"
+git push
