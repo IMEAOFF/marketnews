@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Market News</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+</head>
+<body class="app-dark">
+
+  <nav class="navbar navbar-dark navbar-expand-lg topbar">
+    <div class="container-fluid">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+        <span class="brand-logo">📈</span>
+        <span data-i18n="app_title">Market News</span>
+      </a>
+
+      <div class="d-flex align-items-center gap-2 ms-auto">
+        <!-- Search (kept as-is) -->
+        <form class="d-flex" method="get" action="/">
+          <input type="hidden" name="day" value="{{ day if day else '' }}">
+          <input type="hidden" name="sector" value="{{ sector if sector else 'Tout' }}">
+          <input type="hidden" name="min_score" value="{{ min_score if min_score else 2 }}">
+          <input type="hidden" name="sort" value="{{ sort if sort else 'score' }}">
+          <input class="form-control me-2" name="q" value="{{ q if q else '' }}" data-i18n-ph="search_placeholder" placeholder="Search (keyword, ticker)">
+          <button class="btn btn-outline-light" type="submit" data-i18n="search_btn">Search</button>
+        </form>
+
+        <!-- ✅ Language toggle -->
+        <button class="lang-btn" id="langToggle" type="button" title="Language">
+          <i class="bi bi-globe2"></i>
+          <span class="lang-pill" id="langPill">EN</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container-fluid py-3">
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="mb-3">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }} mb-2">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- i18n dictionary + engine -->
+  <script>
+    const I18N = {
+      en: {
+        app_title: "Market News",
+        search_placeholder: "Search (keyword, ticker)",
+        search_btn: "Search",
+
+        // sidebar
+        history: "History",
+        refresh: "Refresh",
+        refresh_hint: "Refresh = 00:00 (Paris) → now.",
+        api_keys: "API Keys",
+        site: "Site",
+        add: "Add",
+        activate: "Activate",
+        setup: "Setup",
+        missing_key: "Missing key.",
+        get_key: "Get a key",
+        quota_est: "NewsAPI quota (estimated)",
+        used_today: "Used today",
+        remaining: "Remaining",
+        change: "Change",
+
+        selected_day: "Selected day",
+        view: "View",
+        today: "Today",
+        yesterday: "Yesterday",
+        saved_days: "Saved days",
+        min_score: "Min score",
+        sort: "Sort",
+        sort_score: "Score",
+        sort_date: "Date",
+        query: "Search",
+        clear_db: "Clear database",
+
+        // main
+        pro_mode: "Pro Mode",
+        us_vs_eu: "US vs Europe + Unknown",
+        sectors: "Sectors",
+        sectors_hint: "Common filter for both columns",
+        all: "All",
+        us: "US",
+        europe: "Europe",
+        unknown: "Unknown",
+        no_us: "No US news with these filters.",
+        no_eu: "No Europe news with these filters.",
+        no_unknown: "Nothing in Unknown.",
+
+        // translation buttons tooltips (news content unchanged)
+        t_summary: "Translate title + summary",
+        t_full: "Translate full article",
+        translating: "Translating",
+        cached: "cached",
+        paywall_locked: "Protected site 🔒. Use the 'title + summary' icon."
+      },
+
+      fr: {
+        app_title: "Actus Bourse",
+        search_placeholder: "Recherche (mot, ticker)",
+        search_btn: "Rechercher",
+
+        history: "Historique",
+        refresh: "Rafraîchir",
+        refresh_hint: "Refresh = 00:00 (Paris) → maintenant.",
+        api_keys: "Clés API",
+        site: "Site",
+        add: "Ajouter",
+        activate: "Activer",
+        setup: "Setup",
+        missing_key: "Clé manquante.",
+        get_key: "Obtenir une clé",
+        quota_est: "NewsAPI quota (estimé)",
+        used_today: "Utilisé aujourd’hui",
+        remaining: "Restant",
+        change: "Changer",
+
+        selected_day: "Jour sélectionné",
+        view: "Voir",
+        today: "Aujourd’hui",
+        yesterday: "Hier",
+        saved_days: "Jours sauvegardés",
+        min_score: "Score min",
+        sort: "Tri",
+        sort_score: "Score",
+        sort_date: "Date",
+        query: "Recherche",
+        clear_db: "Vider la base",
+
+        pro_mode: "Mode Pro",
+        us_vs_eu: "US vs Europe + Non détecté",
+        sectors: "Secteurs",
+        sectors_hint: "Filtre commun aux 2 colonnes",
+        all: "Tous",
+        us: "US",
+        europe: "Europe",
+        unknown: "Non détecté",
+        no_us: "Aucune news US avec ces filtres.",
+        no_eu: "Aucune news Europe avec ces filtres.",
+        no_unknown: "Rien en “Non détecté”.",
+
+        t_summary: "Traduire titre + résumé",
+        t_full: "Traduire tout l’article",
+        translating: "Traduction",
+        cached: "cache",
+        paywall_locked: "Site protégé 🔒. Utilise l’icône 'titre + résumé'."
+      }
+    };
+
+    function getLang() {
+      return localStorage.getItem("ui_lang") || "en";
+    }
+    function setLang(lang) {
+      localStorage.setItem("ui_lang", lang);
+      document.documentElement.setAttribute("lang", lang);
+      document.documentElement.setAttribute("data-lang", lang);
+      const pill = document.getElementById("langPill");
+      if (pill) pill.textContent = lang.toUpperCase();
+      applyI18n(lang);
+    }
+    function t(key) {
+      const lang = getLang();
+      return (I18N[lang] && I18N[lang][key]) ? I18N[lang][key] : (I18N.en[key] || key);
+    }
+    function applyI18n(lang) {
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        el.textContent = (I18N[lang] && I18N[lang][key]) ? I18N[lang][key] : (I18N.en[key] || key);
+      });
+      document.querySelectorAll("[data-i18n-ph]").forEach(el => {
+        const key = el.getAttribute("data-i18n-ph");
+        el.setAttribute("placeholder", (I18N[lang] && I18N[lang][key]) ? I18N[lang][key] : (I18N.en[key] || key));
+      });
+      document.querySelectorAll("[data-i18n-title]").forEach(el => {
+        const key = el.getAttribute("data-i18n-title");
+        el.setAttribute("title", (I18N[lang] && I18N[lang][key]) ? I18N[lang][key] : (I18N.en[key] || key));
+      });
+    }
+
+    // init
+    (function initLang() {
+      const lang = getLang();
+      setLang(lang);
+      const btn = document.getElementById("langToggle");
+      if (btn) {
+        btn.addEventListener("click", () => {
+          const next = (getLang() === "en") ? "fr" : "en";
+          setLang(next);
+        });
+      }
+    })();
+  </script>
+
+  {% block page_scripts %}{% endblock %}
+
+</body>
+</html>

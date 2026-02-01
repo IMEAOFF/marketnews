@@ -1,0 +1,350 @@
+/* =========================
+   Market News — Dark UI
+   Complete app.css
+   ========================= */
+
+/* Global */
+:root{
+  color-scheme: dark;
+}
+
+*{ box-sizing: border-box; }
+
+html, body{
+  height: 100%;
+}
+
+body.app-dark{
+  margin: 0;
+  background: #0b0f14 !important;
+  color: rgba(255,255,255,0.92) !important;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+}
+
+/* Layout spacing */
+.container-fluid{
+  max-width: 1400px;
+}
+
+/* Top bar */
+.topbar{
+  background: rgba(0,0,0,0.35) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+  backdrop-filter: blur(10px);
+}
+
+.navbar .navbar-brand{
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.brand-logo{
+  display:inline-flex;
+  width: 26px;
+  height: 26px;
+  align-items:center;
+  justify-content:center;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+/* =========================
+   Bootstrap overrides (dark)
+   ========================= */
+body.app-dark .card{
+  background: rgba(255,255,255,0.06) !important;
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  color: rgba(255,255,255,0.92) !important;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+}
+
+body.app-dark .card-body,
+body.app-dark .card-title,
+body.app-dark h1, body.app-dark h2, body.app-dark h3,
+body.app-dark h4, body.app-dark h5, body.app-dark h6{
+  color: rgba(255,255,255,0.92) !important;
+}
+
+body.app-dark .text-muted{
+  color: rgba(255,255,255,0.62) !important;
+}
+
+body.app-dark .btn{
+  border-radius: 12px;
+}
+
+body.app-dark .btn-primary{
+  box-shadow: 0 6px 16px rgba(59,130,246,0.25);
+}
+
+body.app-dark .btn-outline-light{
+  border-color: rgba(255,255,255,0.22) !important;
+  color: rgba(255,255,255,0.88) !important;
+}
+body.app-dark .btn-outline-light:hover{
+  background: rgba(255,255,255,0.10) !important;
+}
+
+body.app-dark .btn-outline-primary{
+  border-color: rgba(59,130,246,0.65) !important;
+  color: rgba(147,197,253,0.95) !important;
+}
+body.app-dark .btn-outline-primary:hover{
+  background: rgba(59,130,246,0.14) !important;
+  color: rgba(255,255,255,0.95) !important;
+}
+
+body.app-dark .btn-outline-secondary{
+  border-color: rgba(255,255,255,0.18) !important;
+  color: rgba(255,255,255,0.75) !important;
+}
+body.app-dark .btn-outline-secondary:hover{
+  background: rgba(255,255,255,0.08) !important;
+}
+
+body.app-dark .form-control,
+body.app-dark input[type="date"],
+body.app-dark input[type="number"],
+body.app-dark .form-select{
+  background: rgba(255,255,255,0.06) !important;
+  border: 1px solid rgba(255,255,255,0.14) !important;
+  color: rgba(255,255,255,0.92) !important;
+  border-radius: 12px;
+}
+
+body.app-dark .form-control::placeholder{
+  color: rgba(255,255,255,0.55) !important;
+}
+
+body.app-dark .form-control:focus,
+body.app-dark input[type="date"]:focus,
+body.app-dark input[type="number"]:focus,
+body.app-dark .form-select:focus{
+  box-shadow: none !important;
+  border-color: rgba(255,255,255,0.30) !important;
+}
+
+body.app-dark .form-check-input{
+  background-color: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.22);
+}
+body.app-dark .form-check-input:checked{
+  background-color: rgba(59,130,246,0.9);
+  border-color: rgba(59,130,246,0.9);
+}
+
+body.app-dark .alert{
+  background: rgba(255,255,255,0.06) !important;
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  color: rgba(255,255,255,0.92) !important;
+  border-radius: 16px;
+}
+
+body.app-dark .badge{
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-weight: 700;
+  letter-spacing: .1px;
+}
+
+body.app-dark .badge.bg-secondary{
+  background: rgba(255,255,255,0.12) !important;
+}
+body.app-dark .badge.bg-dark{
+  background: rgba(0,0,0,0.45) !important;
+}
+body.app-dark .badge.bg-success{
+  background: rgba(34,197,94,0.25) !important;
+  border: 1px solid rgba(34,197,94,0.35);
+}
+body.app-dark .badge.bg-primary{
+  background: rgba(59,130,246,0.25) !important;
+  border: 1px solid rgba(59,130,246,0.35);
+}
+
+/* =========================
+   Components
+   ========================= */
+
+/* KPI blocks in sidebar */
+.kpi{
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 12px;
+}
+
+/* Pro header */
+.pro-header{
+  background: radial-gradient(1200px 500px at 15% 0%, rgba(59,130,246,0.18), transparent 60%),
+              radial-gradient(900px 400px at 80% 30%, rgba(34,197,94,0.10), transparent 60%),
+              rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.10) !important;
+}
+
+/* Sector pills row */
+.btn.btn-sm.btn-outline-primary.active{
+  background: rgba(59,130,246,0.18) !important;
+  color: rgba(255,255,255,0.95) !important;
+}
+
+/* Truncation helpers */
+.truncate-2{
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.truncate-3{
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* News cards links */
+a{
+  color: rgba(147,197,253,0.98);
+  text-decoration: none;
+}
+a:hover{
+  text-decoration: underline;
+}
+
+/* Icon buttons for translation */
+.icon-btn{
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.92);
+  transition: transform .08s ease, background .12s ease, border-color .12s ease, opacity .12s ease;
+}
+.icon-btn:hover{
+  background: rgba(255,255,255,0.10);
+  border-color: rgba(255,255,255,0.22);
+}
+.icon-btn:active{
+  transform: scale(0.98);
+}
+.icon-btn.is-locked{
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Quota bar */
+.quota-box{
+  background: rgba(255,255,255,0.03);
+}
+.quota-bar{
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.10);
+  overflow: hidden;
+}
+.quota-bar-fill{
+  height: 100%;
+  width: 0%;
+  background: rgba(59,130,246,0.9);
+}
+
+/* Language toggle */
+.lang-btn{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 12px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.92);
+}
+.lang-btn:hover{
+  background: rgba(255,255,255,0.10);
+}
+.lang-pill{
+  font-weight:800;
+  font-size:12px;
+  padding:2px 8px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,0.18);
+  background: rgba(0,0,0,0.22);
+}
+
+/* =========================
+   Custom modal (API key)
+   ========================= */
+.custom-modal{
+  position: fixed;
+  inset: 0;
+  display: none;
+  z-index: 9999;
+}
+.custom-modal.is-open{
+  display: block;
+}
+.custom-modal-backdrop{
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(3px);
+}
+.custom-modal-dialog{
+  position: relative;
+  width: min(560px, calc(100% - 24px));
+  margin: 8vh auto;
+}
+
+/* =========================
+   Small polish
+   ========================= */
+hr{
+  border-color: rgba(255,255,255,0.10) !important;
+  opacity: 1;
+}
+
+.badge.text-bg-dark{
+  background: rgba(255,255,255,0.10) !important;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+/* Responsive tweaks */
+@media (max-width: 991px){
+  .container-fluid{ max-width: 100%; }
+  .custom-modal-dialog{ margin: 6vh auto; }
+}
+
+/* =========================
+   Fix btn-group (Sort) in dark mode
+   ========================= */
+body.app-dark .btn-group{
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 999px;
+  padding: 4px;
+}
+
+body.app-dark .btn-group .btn{
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  color: rgba(255,255,255,0.85) !important;
+}
+
+body.app-dark .btn-group .btn:hover{
+  background: rgba(255,255,255,0.08) !important;
+}
+
+body.app-dark .btn-group .btn.active,
+body.app-dark .btn-group .btn:active,
+body.app-dark .btn-group .btn:focus{
+  background: rgba(59,130,246,0.22) !important;
+  color: rgba(255,255,255,0.95) !important;
+  box-shadow: none !important;
+}

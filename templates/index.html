@@ -1,0 +1,602 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="row g-3 mb-3">
+  <!-- Sidebar -->
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-body">
+
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <h5 class="mb-0" data-i18n="history">History</h5>
+          <form method="post" action="/refresh" class="m-0">
+            <input type="hidden" name="day" value="{{ day }}">
+            <button class="btn btn-primary btn-sm" data-i18n="refresh">Refresh</button>
+          </form>
+        </div>
+
+        <div class="text-muted small mb-3" data-i18n="refresh_hint">
+          Refresh = 00:00 (Paris) → now.
+        </div>
+
+        <!-- API Keys -->
+        <div class="kpi mb-3">
+          <div class="small text-muted mb-2" data-i18n="api_keys">API Keys</div>
+
+          <!-- NEWSAPI -->
+          <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="fw-semibold">NewsAPI</div>
+              <div class="d-flex gap-2">
+                <a class="btn btn-sm btn-outline-primary" href="{{ newsapi_register_url }}" target="_blank" rel="noopener" data-i18n="site">Site</a>
+                <button class="btn btn-sm btn-outline-light" type="button"
+                        onclick="openApiKeyModal('newsapi','')"
+                        data-i18n="add">Add</button>
+              </div>
+            </div>
+
+            {% if newsapi_keys|length > 0 %}
+              <form method="post" action="/activate_key" class="d-flex gap-2 mt-2">
+                <input type="hidden" name="provider" value="newsapi">
+                <select class="form-select form-select-sm" name="key_id" required>
+                  {% for k in newsapi_keys %}
+                    <option value="{{ k['id'] }}" {% if k['is_active'] == 1 %}selected{% endif %}>
+                      {% if k['is_active'] == 1 %}✅ {% endif %}
+                      {{ k['label'] or 'key' }} • ****{{ (k['key'] or '')[-4:] }}
+                    </option>
+                  {% endfor %}
+                </select>
+                <button class="btn btn-sm btn-primary" data-i18n="activate">Activate</button>
+              </form>
+            {% else %}
+              <div class="alert alert-warning mt-2 mb-0">
+                <b>NewsAPI</b>: <span data-i18n="missing_key">Missing key.</span>
+                <div class="mt-2">
+                  <a class="btn btn-sm btn-outline-primary" href="{{ newsapi_register_url }}" target="_blank" rel="noopener" data-i18n="get_key">Get a key</a>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- FINNHUB -->
+          <div>
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="fw-semibold">Finnhub</div>
+              <div class="d-flex gap-2">
+                <a class="btn btn-sm btn-outline-primary" href="{{ finnhub_register_url }}" target="_blank" rel="noopener" data-i18n="site">Site</a>
+                <button class="btn btn-sm btn-outline-light" type="button"
+                        onclick="openApiKeyModal('finnhub','')"
+                        data-i18n="add">Add</button>
+              </div>
+            </div>
+
+            {% if finnhub_keys|length > 0 %}
+              <form method="post" action="/activate_key" class="d-flex gap-2 mt-2">
+                <input type="hidden" name="provider" value="finnhub">
+                <select class="form-select form-select-sm" name="key_id" required>
+                  {% for k in finnhub_keys %}
+                    <option value="{{ k['id'] }}" {% if k['is_active'] == 1 %}selected{% endif %}>
+                      {% if k['is_active'] == 1 %}✅ {% endif %}
+                      {{ k['label'] or 'key' }} • ****{{ (k['key'] or '')[-4:] }}
+                    </option>
+                  {% endfor %}
+                </select>
+                <button class="btn btn-sm btn-primary" data-i18n="activate">Activate</button>
+              </form>
+            {% else %}
+              <div class="alert alert-warning mt-2 mb-0">
+                <b>Finnhub</b>: <span data-i18n="missing_key">Missing key.</span>
+                <div class="mt-2">
+                  <a class="btn btn-sm btn-outline-primary" href="{{ finnhub_register_url }}" target="_blank" rel="noopener" data-i18n="get_key">Get a key</a>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Quota -->
+        {% if have_newsapi and newsapi_quota %}
+          <div class="kpi mb-3 quota-box">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="small text-muted" data-i18n="quota_est">NewsAPI quota (estimated)</div>
+              <button class="btn btn-outline-light btn-sm" type="button"
+                      onclick="openApiKeyModal('newsapi','')"
+                      data-i18n="change">Change</button>
+            </div>
+
+            <div class="mt-2">
+              <div class="d-flex justify-content-between small">
+                <span data-i18n="used_today">Used today</span>
+                <span><b>{{ newsapi_quota.used }}</b> / {{ newsapi_quota.limit }}</span>
+              </div>
+              <div class="quota-bar mt-2">
+                <div class="quota-bar-fill"
+                     style="width: {{ (newsapi_quota.used * 100 / newsapi_quota.limit) if newsapi_quota.limit else 0 }}%;"></div>
+              </div>
+              <div class="small text-muted mt-2">
+                <span data-i18n="remaining">Remaining</span>: <b>{{ newsapi_quota.remaining }}</b> • ****{{ newsapi_quota.tail }}
+              </div>
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Date -->
+        <div class="kpi mb-3">
+          <div class="small text-muted" data-i18n="selected_day">Selected day</div>
+
+          <form method="get" action="/" class="d-flex gap-2 mt-2 align-items-center">
+            <input class="form-control" type="date" name="day" value="{{ day }}" max="{{ today }}">
+            <input type="hidden" name="sector" value="{{ sector }}">
+            <input type="hidden" name="q" value="{{ q }}">
+            <input type="hidden" name="min_score" value="{{ min_score }}">
+            <input type="hidden" name="sort" value="{{ sort }}">
+            <button class="btn btn-outline-light" data-i18n="view">View</button>
+          </form>
+
+          <div class="d-flex gap-2 mt-2">
+            <a class="btn btn-sm btn-outline-primary"
+               href="/?day={{ today }}&sector={{ sector }}&q={{ q }}&min_score={{ min_score }}&sort={{ sort }}"
+               data-i18n="today">Today</a>
+            <a class="btn btn-sm btn-outline-secondary"
+               href="/?day={{ yesterday }}&sector={{ sector }}&q={{ q }}&min_score={{ min_score }}&sort={{ sort }}"
+               data-i18n="yesterday">Yesterday</a>
+          </div>
+
+          {% if days|length > 0 %}
+            <div class="small text-muted mt-3" data-i18n="saved_days">Saved days</div>
+            <div class="d-flex flex-wrap gap-2 mt-1">
+              {% for d in days[:12] %}
+                <a class="badge text-bg-dark text-decoration-none"
+                   href="/?day={{ d['snapshot_date'] }}&sector={{ sector }}&q={{ q }}&min_score={{ min_score }}&sort={{ sort }}">
+                  {{ d['snapshot_date'] }} ({{ d['n'] }})
+                </a>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <!-- Min score -->
+        <div class="kpi mb-3">
+          <div class="small text-muted mb-2" data-i18n="min_score">Min score</div>
+          <form method="get" action="/" class="d-flex gap-2 align-items-center">
+            <input type="hidden" name="day" value="{{ day }}">
+            <input type="hidden" name="sector" value="{{ sector }}">
+            <input type="hidden" name="q" value="{{ q }}">
+            <input type="hidden" name="sort" value="{{ sort }}">
+            <input class="form-control" style="width:110px" type="number" min="0" name="min_score" value="{{ min_score }}">
+            <button class="btn btn-outline-light btn-sm">OK</button>
+          </form>
+        </div>
+
+        <!-- Sort -->
+        <div class="kpi mb-3">
+          <div class="small text-muted mb-2" data-i18n="sort">Sort</div>
+          <div class="btn-group w-100">
+            <a class="btn btn-outline-light btn-sm {% if sort=='score' %}active{% endif %}"
+               href="/?day={{ day }}&sector={{ sector }}&q={{ q }}&min_score={{ min_score }}&sort=score"
+               data-i18n="sort_score">Score</a>
+            <a class="btn btn-outline-light btn-sm {% if sort=='date' %}active{% endif %}"
+               href="/?day={{ day }}&sector={{ sector }}&q={{ q }}&min_score={{ min_score }}&sort=date"
+               data-i18n="sort_date">Date</a>
+          </div>
+        </div>
+
+        <form method="post" action="/clear" onsubmit="return confirm('Clear everything?');">
+          <button class="btn btn-outline-danger btn-sm w-100" data-i18n="clear_db">Clear database</button>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="col-lg-8">
+    <div class="card mb-3 pro-header">
+      <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <div>
+          <h5 class="mb-1"><span data-i18n="pro_mode">Pro Mode</span> — {{ day }}</h5>
+          <div class="text-muted small" data-i18n="us_vs_eu">US vs Europe + Unknown</div>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          <span class="badge bg-secondary"><span data-i18n="us">US</span>: {{ count_us }}</span>
+          <span class="badge bg-secondary"><span data-i18n="europe">Europe</span>: {{ count_eu }}</span>
+          <span class="badge bg-secondary"><span data-i18n="unknown">Unknown</span>: {{ count_all }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sectors -->
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+          <div>
+            <h5 class="mb-1" data-i18n="sectors">Sectors</h5>
+            <div class="text-muted small" data-i18n="sectors_hint">Common filter for both columns</div>
+          </div>
+
+          <div class="d-flex flex-wrap gap-2">
+            <a class="badge text-bg-dark text-decoration-none {% if sector=='Tout' %}border border-light{% endif %}"
+               href="/?day={{ day }}&sector=Tout&q={{ q }}&min_score={{ min_score }}&sort={{ sort }}"
+               data-i18n="all">All</a>
+
+            {% for st in stats %}
+              <a class="badge text-bg-secondary text-decoration-none {% if sector==st['sector'] %}border border-light{% endif %}"
+                 href="/?day={{ day }}&sector={{ st['sector'] }}&q={{ q }}&min_score={{ min_score }}&sort={{ sort }}">
+                <span class="sector-label"
+                      data-en="{{ sector_labels_en.get(st['sector'], st['sector']) }}"
+                      data-fr="{{ sector_labels.get(st['sector'], st['sector']) }}">
+                  {{ sector_labels_en.get(st['sector'], st['sector']) }}
+                </span>
+                · {{ st["n"] }}
+              </a>
+            {% endfor %}
+          </div>
+        </div>
+
+        <hr>
+
+        <div class="d-flex flex-wrap gap-2">
+          {% for s in sectors %}
+            <a class="btn btn-sm btn-outline-primary {% if s==sector %}active{% endif %}"
+               href="/?day={{ day }}&sector={{ s }}&q={{ q }}&min_score={{ min_score }}&sort={{ sort }}">
+              <span class="sector-label"
+                    data-en="{{ sector_labels_en.get(s, s) }}"
+                    data-fr="{{ sector_labels.get(s, s) }}">
+                {{ sector_labels_en.get(s, s) }}
+              </span>
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3">
+
+      <!-- US -->
+      <div class="col-lg-6">
+        <div class="card mb-3">
+          <div class="card-body d-flex align-items-center justify-content-between">
+            <h5 class="mb-0">🇺🇸 <span data-i18n="us">US</span></h5>
+            <span class="badge bg-secondary">{{ count_us }}</span>
+          </div>
+        </div>
+
+        {% if rows_us|length == 0 %}
+          <div class="alert alert-info" data-i18n="no_us">No US news with these filters.</div>
+        {% endif %}
+
+        {% for a in rows_us %}
+          <div class="card mb-3">
+            <div class="card-body">
+
+              <div class="small text-muted d-flex flex-wrap gap-2 align-items-center">
+                <span>{{ a["source"] }}</span><span>•</span><span>{{ a["published_at"] }}</span>
+                <span class="badge bg-dark">
+                  <span class="sector-label"
+                        data-en="{{ sector_labels_en.get(a['sector'], a['sector']) }}"
+                        data-fr="{{ sector_labels.get(a['sector'], a['sector']) }}">
+                    {{ sector_labels_en.get(a['sector'], a['sector']) }}
+                  </span>
+                </span>
+                <span class="badge bg-primary">score {{ a["score"] }}</span>
+                {% if a["themes"] %}<span class="badge bg-success">{{ a["themes"] }}</span>{% endif %}
+              </div>
+
+              <h6 class="mt-2 mb-2 truncate-2">
+                <a href="{{ a['url'] }}" target="_blank" rel="noopener">{{ a["title"] }}</a>
+              </h6>
+
+              {% if a["description"] %}
+                <p class="mb-2 text-muted truncate-3">{{ a["description"] }}</p>
+              {% endif %}
+
+              <div class="d-flex gap-2 align-items-center mb-2">
+                <button class="icon-btn" onclick="translateCard(this,'summary')" data-i18n-title="t_summary" title="Translate title + summary">
+                  <i class="bi bi-translate"></i>
+                </button>
+                <button class="icon-btn" onclick="translateCard(this,'full')" data-full-translate data-i18n-title="t_full" title="Translate full article">
+                  <i class="bi bi-file-text"></i>
+                </button>
+              </div>
+
+              <div class="mt-2" data-translation-box></div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- EU -->
+      <div class="col-lg-6">
+        <div class="card mb-3">
+          <div class="card-body d-flex align-items-center justify-content-between">
+            <h5 class="mb-0">🇪🇺 <span data-i18n="europe">Europe</span></h5>
+            <span class="badge bg-secondary">{{ count_eu }}</span>
+          </div>
+        </div>
+
+        {% if rows_eu|length == 0 %}
+          <div class="alert alert-info" data-i18n="no_eu">No Europe news with these filters.</div>
+        {% endif %}
+
+        {% for a in rows_eu %}
+          <div class="card mb-3">
+            <div class="card-body">
+
+              <div class="small text-muted d-flex flex-wrap gap-2 align-items-center">
+                <span>{{ a["source"] }}</span><span>•</span><span>{{ a["published_at"] }}</span>
+                <span class="badge bg-dark">
+                  <span class="sector-label"
+                        data-en="{{ sector_labels_en.get(a['sector'], a['sector']) }}"
+                        data-fr="{{ sector_labels.get(a['sector'], a['sector']) }}">
+                    {{ sector_labels_en.get(a['sector'], a['sector']) }}
+                  </span>
+                </span>
+                <span class="badge bg-primary">score {{ a["score"] }}</span>
+                {% if a["themes"] %}<span class="badge bg-success">{{ a["themes"] }}</span>{% endif %}
+              </div>
+
+              <h6 class="mt-2 mb-2 truncate-2">
+                <a href="{{ a['url'] }}" target="_blank" rel="noopener">{{ a["title"] }}</a>
+              </h6>
+
+              {% if a["description"] %}
+                <p class="mb-2 text-muted truncate-3">{{ a["description"] }}</p>
+              {% endif %}
+
+              <div class="d-flex gap-2 align-items-center mb-2">
+                <button class="icon-btn" onclick="translateCard(this,'summary')" data-i18n-title="t_summary" title="Translate title + summary">
+                  <i class="bi bi-translate"></i>
+                </button>
+                <button class="icon-btn" onclick="translateCard(this,'full')" data-full-translate data-i18n-title="t_full" title="Translate full article">
+                  <i class="bi bi-file-text"></i>
+                </button>
+              </div>
+
+              <div class="mt-2" data-translation-box></div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+    </div>
+
+    <!-- Unknown -->
+    <div class="card mt-2">
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+          <h5 class="mb-0">🟨 <span data-i18n="unknown">Unknown</span></h5>
+          <span class="badge bg-secondary">{{ count_all }}</span>
+        </div>
+
+        {% if rows_all|length == 0 %}
+          <div class="alert alert-secondary mt-3 mb-0" data-i18n="no_unknown">Nothing in Unknown.</div>
+        {% else %}
+          <div class="mt-3">
+            {% for a in rows_all %}
+              <div class="card mb-2">
+                <div class="card-body">
+
+                  <div class="small text-muted d-flex flex-wrap gap-2 align-items-center">
+                    <span>{{ a["source"] }}</span><span>•</span><span>{{ a["published_at"] }}</span>
+                    <span class="badge bg-dark">
+                      <span class="sector-label"
+                            data-en="{{ sector_labels_en.get(a['sector'], a['sector']) }}"
+                            data-fr="{{ sector_labels.get(a['sector'], a['sector']) }}">
+                        {{ sector_labels_en.get(a['sector'], a['sector']) }}
+                      </span>
+                    </span>
+                    <span class="badge bg-primary">score {{ a["score"] }}</span>
+                    {% if a["themes"] %}<span class="badge bg-success">{{ a["themes"] }}</span>{% endif %}
+                  </div>
+
+                  <h6 class="mt-2 mb-2 truncate-2">
+                    <a href="{{ a['url'] }}" target="_blank" rel="noopener">{{ a["title"] }}</a>
+                  </h6>
+
+                  {% if a["description"] %}
+                    <p class="mb-2 text-muted truncate-3">{{ a["description"] }}</p>
+                  {% endif %}
+
+                  <div class="d-flex gap-2 align-items-center mb-2">
+                    <button class="icon-btn" onclick="translateCard(this,'summary')" data-i18n-title="t_summary" title="Translate title + summary">
+                      <i class="bi bi-translate"></i>
+                    </button>
+                    <button class="icon-btn" onclick="translateCard(this,'full')" data-full-translate data-i18n-title="t_full" title="Translate full article">
+                      <i class="bi bi-file-text"></i>
+                    </button>
+                  </div>
+
+                  <div class="mt-2" data-translation-box></div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal add key -->
+<div class="custom-modal" id="apiKeyModal" aria-hidden="true">
+  <div class="custom-modal-backdrop" onclick="closeApiKeyModal()"></div>
+  <div class="custom-modal-dialog">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start gap-2">
+          <div>
+            <h5 class="mb-1" id="apiKeyModalTitle">Add API Key</h5>
+            <div class="text-muted small" id="apiKeyModalMsg"></div>
+          </div>
+          <button class="btn btn-sm btn-outline-light" type="button" onclick="closeApiKeyModal()">✕</button>
+        </div>
+
+        <div class="d-flex gap-2 mt-3 flex-wrap" id="apiKeyLinks"></div>
+
+        <form method="post" action="/set_api_key" class="mt-3">
+          <input type="hidden" name="provider" id="apiProvider" value="newsapi">
+
+          <label class="form-label">New key</label>
+          <input class="form-control" name="new_key" placeholder="paste your key here" required>
+
+          <label class="form-label mt-3">Label (optional)</label>
+          <input class="form-control" name="label" placeholder="ex: backup-2">
+
+          <div class="form-check mt-3">
+            <input class="form-check-input" type="checkbox" name="save_old" id="save_old">
+            <label class="form-check-label" for="save_old">Save old key as backup</label>
+          </div>
+
+          <div class="form-check mt-2">
+            <input class="form-check-input" type="checkbox" name="do_test" id="do_test" checked>
+            <label class="form-check-label" for="do_test">Test before activating (uses 1 request)</label>
+          </div>
+
+          <div class="d-flex gap-2 mt-3">
+            <button class="btn btn-primary" type="submit">Save</button>
+            <button class="btn btn-outline-light" type="button" onclick="closeApiKeyModal()">Cancel</button>
+          </div>
+        </form>
+
+        <div class="text-muted small mt-3">
+          Stored locally in <b>news.db</b> (<code>api_keys</code> table).
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+  // Modal helpers
+  function openApiKeyModal(provider, message) {
+    const modal = document.getElementById("apiKeyModal");
+    const title = document.getElementById("apiKeyModalTitle");
+    const msg = document.getElementById("apiKeyModalMsg");
+    const prov = document.getElementById("apiProvider");
+    const links = document.getElementById("apiKeyLinks");
+
+    prov.value = provider;
+
+    if (provider === "newsapi") {
+      title.textContent = "Add NewsAPI Key";
+      links.innerHTML = `<a class="btn btn-sm btn-outline-primary" href="{{ newsapi_register_url }}" target="_blank" rel="noopener">Get a NewsAPI key</a>`;
+    } else {
+      title.textContent = "Add Finnhub Key";
+      links.innerHTML = `<a class="btn btn-sm btn-outline-primary" href="{{ finnhub_register_url }}" target="_blank" rel="noopener">Get a Finnhub key</a>`;
+    }
+
+    msg.textContent = message || "";
+    modal.classList.add("is-open");
+    modal.setAttribute("aria-hidden", "false");
+  }
+
+  function closeApiKeyModal() {
+    const modal = document.getElementById("apiKeyModal");
+    modal.classList.remove("is-open");
+    modal.setAttribute("aria-hidden", "true");
+  }
+
+  // Translate (news content only)
+  async function translateCard(btn, mode) {
+    const card = btn.closest(".card");
+    const a = card.querySelector("h5 a, h6 a");
+    const title = a ? a.innerText.trim() : "";
+    const url = a ? a.getAttribute("href") : "";
+    const descEl = card.querySelector("p");
+    const description = descEl ? descEl.innerText.trim() : "";
+
+    const box = card.querySelector("[data-translation-box]");
+    box.innerHTML = `<div class="alert alert-secondary mb-0">${t("translating")} (${mode})…</div>`;
+
+    try {
+      const res = await fetch("/translate", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ mode, url, title, description })
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || "Translate error");
+
+      const note = data.cached ? ` (${t("cached")})` : "";
+      box.innerHTML = `
+        <div class="alert alert-secondary mb-0">
+          <div class="small text-muted mb-2">${t("translating")}${note}</div>
+          <div style="white-space: pre-wrap">${escapeHtml(data.translated)}</div>
+        </div>
+      `;
+    } catch (e) {
+      box.innerHTML = `<div class="alert alert-danger mb-0">${escapeHtml(e.message)}</div>`;
+    }
+  }
+
+  function escapeHtml(str) {
+    return (str || "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  // Disable full translation for paywalled domains
+  const BLOCKED_DOMAINS = ["marketwatch.com","bloomberg.com","ft.com","wsj.com","barrons.com","seekingalpha.com"];
+
+  function getArticleUrlFromCard(card) {
+    const a = card.querySelector("h5 a, h6 a");
+    return a ? a.getAttribute("href") : "";
+  }
+
+  function isBlockedDomain(url) {
+    try {
+      const u = new URL(url);
+      return BLOCKED_DOMAINS.some(d => u.hostname.includes(d));
+    } catch (e) { return false; }
+  }
+
+  function applyFullTranslateLocks() {
+    document.querySelectorAll("[data-full-translate]").forEach(btn => {
+      const card = btn.closest(".card");
+      const url = getArticleUrlFromCard(card);
+      if (isBlockedDomain(url)) {
+        btn.disabled = true;
+        btn.classList.add("is-locked");
+        btn.setAttribute("title", t("paywall_locked"));
+      }
+    });
+  }
+
+  // ✅ Sector labels EN/FR
+  function applySectorLabels() {
+    const lang = localStorage.getItem("ui_lang") || "en";
+    document.querySelectorAll(".sector-label").forEach(el => {
+      el.textContent = (lang === "fr") ? el.dataset.fr : el.dataset.en;
+    });
+  }
+
+  // ✅ Update tooltips when language changes
+  function updateI18nTitles() {
+    document.querySelectorAll("[data-i18n-title]").forEach(el => {
+      const key = el.getAttribute("data-i18n-title");
+      el.setAttribute("title", t(key));
+    });
+  }
+
+  // Run once
+  applySectorLabels();
+  updateI18nTitles();
+  applyFullTranslateLocks();
+
+  // Hook into layout's setLang
+  const __origSetLang = window.setLang;
+  window.setLang = function(lang) {
+    __origSetLang(lang);
+    applySectorLabels();
+    updateI18nTitles();
+    applyFullTranslateLocks();
+  };
+</script>
+{% endblock %}
