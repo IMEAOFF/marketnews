@@ -88,9 +88,3 @@ License
 
 MIT
 MD
-
-2) Commit + push
-
-git add README.md
-git commit -m “Update README”
-git push
